@@ -1,32 +1,61 @@
-import pandas as pd
-from datetime import datetime
+from collections import defaultdict
 
-start_time = datetime.now()
+def get_transactions(filename):
+    transactions = defaultdict(list)
+    with open(filename, 'r') as f:
+        for line in f:
+            tid, item = map(int, line.strip().split())
+            item = "item" + str(item)  # add the word "item" in front of each item ID
+            transactions[tid].append(item)
+    return transactions
 
-# load the file
-data = pd.read_csv('small.txt', sep=" ", names=['ID', 'ITEMSETS'])
-# modifying the structure of the second column to the requirements for later
-data['ITEMSETS'] = 'item' + data['ITEMSETS'].astype(str)
-dt = data.groupby('ID')['ITEMSETS'].apply(list)
 
-# Initialize an empty dictionary to keep track of the counts
-count_dict = {}
+transactions = get_transactions('small.txt')
 
-# Loop over each list in the main list and count the occurrences of each item
-for lst in dt:
-    for item in lst:
-        if item in count_dict:
-            count_dict[item] += 1
-        else:
-            count_dict[item] = 1
+# print(transactions)
 
-# Sort the dictionary by value in descending order
-sorted_dict = {k: v for k, v in sorted(count_dict.items(), key=lambda item: item[1], reverse=True)}
+# create a list of all items
+items = []
+for transaction in transactions.values():
+    for item in transaction:
+        items.append(item)
 
-sdict = pd.DataFrame(sorted_dict.items(), columns=('ITEMSETS', 'SUPPORT_COUNT'))
+# count the occurrence of each item
+item_counts = {}
+for item in items:
+    if item in item_counts:
+        item_counts[item] += 1
+    else:
+        item_counts[item] = 1
 
-minsup = int(input('Please enter the minimum support count?\n'))
+# keep only items with count >= 1
+frequent_items = []
+for item, count in item_counts.items():
+    if count >= 200:
+        frequent_items.append(item)
 
-# Create a dataframe of all frequent 1 itemset
-F_1itemsets = sdict[sdict['SUPPORT_COUNT'] >= minsup]
-print(F_1itemsets)
+
+# print 1-frequent
+print('ITEMSETS', '|SUPPORT_COUNT')
+for item in frequent_items:
+    print(f"{item}: {item_counts[item]}")
+
+# create a set of 2-itemsets and their count in data
+itemset_2 = {}
+for i in frequent_items:
+    for j in frequent_items:
+        if i != j:
+            # create 2-itemset
+            itemset = set([i, j])
+            count = 0
+            for transaction in transactions.values():
+                # check if 2-itemset is present in transaction
+                if itemset.issubset(transaction):
+                    count += 1
+            itemset_2[tuple(itemset)] = count
+
+print('----------------------------')
+print('ITEMSETS', '|SUPPORT_COUNT')
+for itemset, count in sorted(itemset_2.items(), key=lambda x: x[1], reverse=True):
+    if count >= 200:
+        print(itemset, count)
