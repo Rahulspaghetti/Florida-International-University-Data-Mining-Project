@@ -13,10 +13,3 @@ def pruning(candidateitemsets, frequentitemsets, k):
     return pruneditemsets
 
 
-candidateitemsets = [{'A', 'B', 'C'}, {'A', 'B', 'D'}, {'B', 'C', 'D'}, {'A', 'C', 'D'}, {'A', 'B', 'E'}, {'A', 'C', 'E'}, {'B', 'C', 'E'}, {'C', 'D', 'E'}]
-frequentitemsets = [{'A', 'B'}, {'A', 'C'}, {'B', 'C'}, {'C', 'D'}, {'B', 'D'}, {'A', 'D'}, {'C', 'E'}, {'B', 'E'}, {'A', 'E'}]
-k = 3
-pruneditemsets = pruning(candidateitemsets, frequentitemsets, k)
-
-# Print pruned itemsets
-print("Pruned itemsets:", pruneditemsets)
