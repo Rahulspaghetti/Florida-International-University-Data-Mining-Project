@@ -69,3 +69,10 @@ for itemset, count in sorted(itemset_2.items(), key=lambda x: x[1], reverse=True
         print(f"{itemset}: {count}")
 
 print('----------------------------')
+with open("frequent" +str(minsup)+"_items.txt", "w") as f:
+    f.write("ITEMSETS |SUPPORT_COUNT\n")
+    for item, count in freq_items:
+        f.write(f"{item}: {count}\n")
+    for itemset, count in sorted(itemset_2.items(), key = lambda x: x[1], reverse = True):
+            if count >= minsup:
+                f.write(f"{itemset}: {count}\n")
