@@ -1,4 +1,7 @@
 from collections import defaultdict
+# set minimum support threshold
+minsup = 200
+
 
 def get_transactions(filename):
     transactions = defaultdict(list)
@@ -28,17 +31,21 @@ for item in items:
     else:
         item_counts[item] = 1
 
-# keep only items with count >= 1
+# keep only items with count >= minsup
 frequent_items = []
+freq_items = []
 for item, count in item_counts.items():
-    if count >= 200:
+    if count >= minsup:
         frequent_items.append(item)
+        freq_items.append((item, count))
 
+# sort frequent items by count
+freq_items.sort(key=lambda x: x[1], reverse=True)
 
 # print 1-frequent
 print('ITEMSETS', '|SUPPORT_COUNT')
-for item in frequent_items:
-    print(f"{item}: {item_counts[item]}")
+for item, count in freq_items:
+    print(f"{item}: {count}")
 
 # create a set of 2-itemsets and their count in data
 itemset_2 = {}
@@ -57,5 +64,15 @@ for i in frequent_items:
 print('----------------------------')
 print('ITEMSETS', '|SUPPORT_COUNT')
 for itemset, count in sorted(itemset_2.items(), key=lambda x: x[1], reverse=True):
-    if count >= 200:
-        print(itemset, count)
+    if count >= minsup:
+        # print(itemset, count)
+        print(f"{itemset}: {count}")
+
+print('----------------------------')
+with open("frequent" +str(minsup)+"_items.txt", "w") as f:
+    f.write("ITEMSETS |SUPPORT_COUNT\n")
+    for item, count in freq_items:
+        f.write(f"{item}: {count}\n")
+    for itemset, count in sorted(itemset_2.items(), key = lambda x: x[1], reverse = True):
+            if count >= minsup:
+                f.write(f"{itemset}: {count}\n")
