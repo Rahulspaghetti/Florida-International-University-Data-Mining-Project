@@ -291,7 +291,7 @@ with open(f"{output_name}_info.txt", "w") as f:
         f.write(f"Number of frequent {k}-itemsets: {v}\n")
 
     f.write(f"Total number of frequent items: {total_freq_items}\n")
-    f.write(f"The length of the largest k-itemset: {max_k_itemset}\n")
+    f.write(f"The length of the largest k-itemset: {k}\n")
     f.write(f"The most frequent itemset: {most_freq_itemset}\n")
     f.write(f"Number of high confidence rules: {num_high_conf_rules}\n")
     f.write(f"The rule with the highest confidence: {rule_with_highest_conf}\n")
