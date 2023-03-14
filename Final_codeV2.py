@@ -317,7 +317,7 @@ for itemset in frequent_itemsets:
 
 # Create a bar plot of the frequency counts
 plt.bar(freq_counts.keys(), freq_counts.values())
-plt.xlabel('k')
-plt.ylabel('Number of frequent k-itemsets')
-plt.title('Frequent itemset counts by k')
+plt.xlabel('Values of k')
+plt.ylabel('Number of frequent itemsets')
+plt.title('Number of Frequent Itemsets by Values of K')
 plt.show()
