@@ -1,21 +1,26 @@
 # R1
-
 import collections
-import time
+from time import time
+import itertools
+import csv
+from itertools import combinations
+import matplotlib.pyplot as plt
 
-start_time = time.time()
+start_time = time()
+
+# References from internet for syntax and few write logic was referred
 
 
-def generate_candidates(frequent_itemsets):
-    candidates = set()
-    for i, itemset1 in enumerate(frequent_itemsets):
-        for itemset2 in frequent_itemsets[i + 1:]:
+def generate_candidates(freq_itemsets):
+    candidate_sets = set()
+    for index, itemset1 in enumerate(freq_itemsets):
+        for itemset2 in freq_itemsets[index + 1:]:
             # Take the union of the two itemsets
             candidate = frozenset(itemset1.union(itemset2))
             # Only add the candidate if its length is one greater than the length of itemset1
             if len(candidate) == len(itemset1) + 1:
-                candidates.add(candidate)
-    return candidates
+                candidate_sets.add(candidate)
+    return candidate_sets
 
 
 def get_subsets(itemset):
@@ -25,28 +30,28 @@ def get_subsets(itemset):
     return subsets
 
 
-def prune_candidates(candidates, frequent_itemsets):
+def prune_candidates(candidates, freq_itemsets):
     """
-    Prune candidates that are not subsets of frequent itemsets
+    Prune candidate_set that are not subsets of frequent itemsets
     """
     pruned_candidates = []
     for candidate in candidates:
         subsets = get_subsets(candidate)
-        if all(subset in frequent_itemsets for subset in subsets):
+        if all(subset in freq_itemsets for subset in subsets):
             pruned_candidates.append(candidate)
     return pruned_candidates
 
 
-def filter_frequent_itemsets(frequent_itemsets, output_file):
+def filter_frequent_itemsets(freq_itemsets):
     """
-    Remove pruned candidates from frequent itemsets and generate text file of format itemset|supportcount
+    Remove pruned candidate_set from frequent itemsets and generate text file of format itemset|supportcount
     """
     # Convert frequent itemsets to a set for faster lookup
-    frequent_set = {itemset for itemset, support in frequent_itemsets}
+    frequent_set = {itemset for itemset, support in freq_itemsets}
 
-    # Prune candidates and create new frequent itemsets
+    # Prune candidate_set and create new frequent itemsets
     new_frequent_itemsets = []
-    for itemset, support in frequent_itemsets:
+    for itemset, support in freq_itemsets:
         subsets = get_subsets(itemset)
         pruned_subsets = [subset for subset in subsets if subset in frequent_set]
         new_itemset = frozenset(itemset)
@@ -100,10 +105,9 @@ while frequent_itemsets:
                 f.write(f"{' '.join(itemset)}|{support_count}\n")
     k += 1
 
-end_time1 = time.time()
+end_time_initial = time()
 
 # Pruning
-import itertools
 
 frequent_itemsets = []
 
@@ -113,18 +117,16 @@ with open("DataMiningProjectGroup10_items.txt", 'r') as f:
         itemset = set(items.split())
         frequent_itemsets.append(itemset)
 
-# Generate pruned candidates
+# Generate pruned candidate_set
 candidates = generate_candidates(frequent_itemsets)
 pruned_candidates = [(frozenset(candidate), 0) for candidate in prune_candidates(candidates, frequent_itemsets)]
 
-filter_frequent_itemsets(pruned_candidates, 'filtered_frequent_itemsets.txt')
+filter_frequent_itemsets(pruned_candidates)
 
-end_time2 = time.time()
+end_time_between = time()
 
 # R2
 
-import csv
-from itertools import combinations
 
 # Set input and output file names
 input_file_name = 'DataMiningProjectGroup10_items.txt'
@@ -177,18 +179,14 @@ with open(input_file_name, 'r') as f, open(output_file_name, 'w', newline='') as
         # Generate rules from itemset
         for lhs, rhs, support, confidence in generate_rules(itemset, support, minconf=0.9):
             output_file.write(f"{' '.join(lhs)}|{' '.join(rhs)}|{support}|{confidence}\n")
-        # for rule in generate_rules(itemset, support, minconf=0.8):
-        # Write rule to output file
-        # output_writer.writerow([*rule[0], '|', *rule[1], '|', rule[2],'|', rule[3]])
 
-end_time3 = time.time()
+end_time_final = time()
 
 # R3
-
-start_time2 = time.time()
+start_time2 = time()
 # Define variables
-minsup = MIN_SUPPORT
-minconf = MIN_CONFIDENCE
+min_sup = MIN_SUPPORT
+min_conf = MIN_CONFIDENCE
 input_file = "small.txt"
 output_name = "DataMiningProjectGroup10"
 
@@ -257,7 +255,7 @@ with open('DataMiningProjectGroup10_rules.txt', 'r') as f:
     lines = f.readlines()[1:]
     num_high_conf_rules = sum(
         1 for line in lines
-        if float(line.split('|')[-1].strip()) >= minconf
+        if float(line.split('|')[-1].strip()) >= min_conf
     )
 
 with open('DataMiningProjectGroup10_rules.txt', 'r') as f:
@@ -273,13 +271,13 @@ with open('DataMiningProjectGroup10_rules.txt', 'r') as f:
     print("The rule with the highest confidence is:", highest_conf_rule)
     rule_with_highest_conf = highest_conf_rule
 
-time_to_find_freq_itemsets = end_time1 - start_time
-time_to_find_conf_rules = end_time3 - end_time1
+time_to_find_freq_itemsets = end_time_initial - start_time
+time_to_find_conf_rules = end_time_final - end_time_initial
 
 # Writing to file info
 with open(f"{output_name}_info.txt", "w") as f:
-    f.write(f"minsup: {minsup}\n")
-    f.write(f"minconf: {minconf}\n")
+    f.write(f"minsup: {min_sup}\n")
+    f.write(f"minconf: {min_conf}\n")
     f.write(f"input file: {input_file}\n")
     f.write(f"output name: {output_name}\n")
     f.write(f"Number of items: {num_items}\n")
@@ -296,9 +294,6 @@ with open(f"{output_name}_info.txt", "w") as f:
     f.write(f"Time in seconds to find the confident rules: {time_to_find_conf_rules:.2f}\n")
 
 # R4
-
-import matplotlib.pyplot as plt
-
 # Read in the frequent itemsets from a text file
 frequent_itemsets = []
 with open('DataMiningProjectGroup10_items.txt', 'r') as f:
