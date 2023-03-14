@@ -1,9 +1,9 @@
 # R1
 
 import collections
-from time import time
+import time
 
-start_time = time()
+start_time = time.time()
 
 
 def generate_candidates(frequent_itemsets):
@@ -59,8 +59,8 @@ def filter_frequent_itemsets(frequent_itemsets, output_file):
             f.write("{}|{}\n".format(' '.join(itemset), support))
 
 
-MIN_SUPPORT = 150
-MIN_CONFIDENCE = 0.8
+MIN_SUPPORT = 120
+MIN_CONFIDENCE = 0.9
 
 transactions = collections.defaultdict(list)
 item_counts = collections.defaultdict(int)
@@ -100,7 +100,7 @@ while frequent_itemsets:
                 f.write(f"{' '.join(itemset)}|{support_count}\n")
     k += 1
 
-end_time1 = time()
+end_time1 = time.time()
 
 # Pruning
 import itertools
@@ -119,7 +119,7 @@ pruned_candidates = [(frozenset(candidate), 0) for candidate in prune_candidates
 
 filter_frequent_itemsets(pruned_candidates, 'filtered_frequent_itemsets.txt')
 
-end_time2 = time()
+end_time2 = time.time()
 
 # R2
 
@@ -169,23 +169,23 @@ with open(input_file_name, 'r') as input_file, open(output_file_name, 'w', newli
 with open(input_file_name, 'r') as f, open(output_file_name, 'w', newline='') as output_file:
     output_writer = csv.writer(output_file, delimiter=' ')
     output_file.write(f"LHS|RHS|SUPPORT|CONFIDENCE\n")
-    next(f) # because there is a header, start reading at line 2
+    next(f)  # because there is a header, start reading at line 2
     for line in f:
         items, support = line.strip().split('|')
         itemset = tuple(items.split())
         itemsets.append((itemset, int(support)))
         # Generate rules from itemset
-        for lhs, rhs, support, confidence in generate_rules(itemset, support, minconf=0.8):
+        for lhs, rhs, support, confidence in generate_rules(itemset, support, minconf=0.9):
             output_file.write(f"{' '.join(lhs)}|{' '.join(rhs)}|{support}|{confidence}\n")
         # for rule in generate_rules(itemset, support, minconf=0.8):
         # Write rule to output file
         # output_writer.writerow([*rule[0], '|', *rule[1], '|', rule[2],'|', rule[3]])
 
-end_time3 = time()
+end_time3 = time.time()
 
 # R3
 
-start_time = time()
+start_time2 = time.time()
 # Define variables
 minsup = MIN_SUPPORT
 minconf = MIN_CONFIDENCE
@@ -259,9 +259,6 @@ with open('DataMiningProjectGroup10_rules.txt', 'r') as f:
         1 for line in lines
         if float(line.split('|')[-1].strip()) >= minconf
     )
-# num_high_conf_rules = sum(
-    # 1 for line in open('DataMiningProjectGroup10_rules.txt', 'r')
-    # if float(line.split('|')[-1].strip()) >= minconf)
 
 with open('DataMiningProjectGroup10_rules.txt', 'r') as f:
     reader = csv.reader(f, delimiter='|')
@@ -315,9 +312,10 @@ for itemset in frequent_itemsets:
     k = len(itemset.split())
     freq_counts[k] = freq_counts.get(k, 0) + 1
 
-# Create a bar plot of the frequency counts
+
+# Create a bar plot of the number of frequent itemsets
 plt.bar(freq_counts.keys(), freq_counts.values())
-plt.xlabel('Values of k')
-plt.ylabel('Number of frequent itemsets')
+plt.xlabel('Values of K')
+plt.ylabel('Number of Frequent itemset')
 plt.title('Number of Frequent Itemsets by Values of K')
 plt.show()
